@@ -9,8 +9,8 @@ Corrects the small error left by the analytical approximations.
 
 import numpy as np
 from typing import Optional, Tuple
-from forward_kinematics import ForwardKinematics
-from robot_config import GEO, Rx, Ry, Rz
+from kinematics.forward_kinematics import ForwardKinematics
+from configs.robot_config import GEO, Rx, Ry, Rz
 
 
 class InverseKinematics:
