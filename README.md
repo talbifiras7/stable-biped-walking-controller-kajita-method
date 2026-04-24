@@ -164,10 +164,10 @@ These tests include:
 
 ## Validation
 
-* ✔ Left/right symmetry consistency
-* ✔ Jacobian numerical stability
-* ✔ IK accuracy (millimeter-level error)
-* ✔ FK/IK round-trip validation
+* Left/right symmetry consistency
+* Jacobian numerical stability
+* IK accuracy (millimeter-level error)
+* FK/IK round-trip validation
 
 ---
 
