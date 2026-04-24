@@ -10,13 +10,13 @@ The system models a **12-DOF humanoid lower body (6 DOF per leg)** with consiste
 
 ##  Key Features
 
-* ✅ Full **Forward Kinematics (FK)** for both legs
-* ✅ Explicit **left/right symmetry modeling**
-* ✅ **6×6 Jacobian** (numerical, finite differences)
-* ✅ **Inverse Kinematics (IK)** using Jacobian pseudo-inverse
-* ✅ Control of **foot position and orientation**
-* ✅ **FK → IK → FK validation pipeline**
-* ✅ Integration with **PyBullet simulation**
+* Full **Forward Kinematics (FK)** for both legs
+* Explicit **left/right symmetry modeling**
+* **6×6 Jacobian** (numerical, finite differences)
+* **Inverse Kinematics (IK)** using Jacobian pseudo-inverse
+* Control of **foot position and orientation**
+* **FK → IK → FK validation pipeline**
+* Integration with **PyBullet simulation**
 
 ---
 
