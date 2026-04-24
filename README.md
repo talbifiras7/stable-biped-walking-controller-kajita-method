@@ -1,62 +1,183 @@
-# PFA Bipedal Robot Project
+# 🤖 PFA Bipedal Robot Project
 
-## Project Overview
+## 📌 Overview
 
-This repository contains a Python implementation of core bipedal robot kinematics, including forward kinematics, inverse kinematics, and a PyBullet-based simulation environment. The work is organized to support a 12-DOF humanoid leg model with symmetric left/right leg handling.
+This project implements the **core kinematics pipeline of a lower-body bipedal robot**, including forward kinematics, Jacobian computation, inverse kinematics, and simulation in PyBullet.
 
-> This README is intended to be updated every time new functionality, modules, or documentation is added to the project.
+The system models a **12-DOF humanoid lower body (6 DOF per leg)** with consistent handling of **left/right symmetry** and full **6D foot pose control (position + orientation)**.
 
-## Current Structure
+---
 
-- `configs/robot_config.py`
-  - shared robot geometry constants and rotation utilities
-- `kinematics/forward_kinematics.py`
-  - leg forward kinematics for right and left legs
-  - analytic computation of transform, position, rotation, and finite-difference Jacobian
-- `kinematics/inverse_kinematics.py`
-  - Newton-Raphson IK solver for one leg
-  - solves foot pose given a target position and orientation
-- `simulation/simulation.py`
-  - PyBullet visualization and robot simulation entrypoint
-  - example leg joint control for both right and left legs
-- `visualization/plots/`
-  - placeholder directories for FK, IK, Jacobian, and trajectory plots
-- `simulation/hum.urdf`
-  - humanoid URDF model used by the PyBullet simulation
+## 🧠 Key Features
 
-## What’s Implemented
+* ✅ Full **Forward Kinematics (FK)** for both legs
+* ✅ Explicit **left/right symmetry modeling**
+* ✅ **6×6 Jacobian** (numerical, finite differences)
+* ✅ **Inverse Kinematics (IK)** using Jacobian pseudo-inverse
+* ✅ Control of **foot position and orientation**
+* ✅ **FK → IK → FK validation pipeline**
+* ✅ Integration with **PyBullet simulation**
 
-- `ForwardKinematics` for a single leg with mirrored left/right functionality
-- `InverseKinematics` solver using Jacobian pseudo-inverse and pose error correction
-- `robot_config` geometry definitions for pelvis, thigh, shank, foot, and hip width
-- PyBullet demo simulation with a humanoid URDF and leg joint control mapping
+---
 
-## How to Run
+## 🏗️ Project Structure
 
-1. Activate your Python environment.
-2. Install dependencies such as `numpy`, `matplotlib`, and `pybullet` if needed.
-3. Run the simulation:
+```id="p4j8xk"
+PFA/
+│
+├── configs/
+│   └── robot_config.py
+│       → Robot geometry (pelvis, thigh, shank, foot)
+│       → Rotation matrices (Rx, Ry, Rz)
+│       → Homogeneous transformation utilities
+│
+├── kinematics/
+│   ├── forward_kinematics.py
+│   │   → Computes pelvis → foot transform
+│   │   → Returns position, rotation, Jacobian
+│   │   → Handles left/right symmetry
+│   │
+│   └── inverse_kinematics.py
+│       → Newton-Raphson IK solver
+│       → Uses Jacobian pseudo-inverse
+│       → Supports full pose targets
+│
+├── simulation/
+│   ├── simulation.py
+│   │   → PyBullet simulation entry point
+│   │   → Applies joint commands to both legs
+│   │
+│   └── hum.urdf
+│       → Humanoid lower-body model
+│
+├── visualization/
+│   └── plots/
+│       → FK / IK / Jacobian visual outputs
+```
 
-```bash
+---
+
+## ⚙️ Kinematic Model
+
+### 🔗 Structure
+
+Each leg is modeled as:
+
+```id="zt3p9f"
+Pelvis → Hip (3 DOF) → Knee (1 DOF) → Ankle (2 DOF) → Foot
+```
+
+Total system:
+
+```id="l7x6mk"
+2 legs × 6 DOF = 12 DOF
+```
+
+---
+
+### 🔁 Forward Kinematics
+
+The full transform is computed as:
+
+```id="b7w9as"
+T = T_pelvis→hip
+  · R_hip(q0,q1,q2)
+  · T_hip→knee
+  · R_knee(q3)
+  · T_knee→ankle
+  · R_ankle(q4,q5)
+  · T_ankle→foot
+```
+
+Outputs:
+
+* Foot position `p ∈ ℝ³`
+* Foot orientation `R ∈ SO(3)`
+* Homogeneous transform `T ∈ ℝ⁴ˣ⁴`
+
+---
+
+### 📐 Jacobian
+
+A **6×6 Jacobian** is computed numerically:
+
+```id="5rpk4y"
+J = [ linear velocity
+      angular velocity ]
+```
+
+Used for:
+
+* inverse kinematics
+* local motion mapping
+* singularity analysis
+
+---
+
+### 🎯 Inverse Kinematics
+
+Solved using **Newton-Raphson with pseudo-inverse**:
+
+```id="xk6m5y"
+Δq = J⁺ · e
+```
+
+Where:
+
+```id="k2a6xp"
+e = [ position error
+      orientation error ]
+```
+
+Features:
+
+* Iterative convergence
+* Full pose tracking
+* Stable updates via gain scaling
+
+---
+
+## ▶️ How to Run
+
+### 🔹 Simulation
+
+```bash id="g2c7ha"
 python simulation/simulation.py
 ```
 
-4. Run kinematics self-tests directly:
+---
 
-```bash
+### 🔹 Kinematics Tests
+
+```bash id="s6nq4j"
 python kinematics/forward_kinematics.py
 python kinematics/inverse_kinematics.py
 ```
 
-## Notes and Future Updates
+These tests include:
 
-- Add new modules or features here as they are implemented.
-- Update the `Current Structure` and `What’s Implemented` sections for every new capability.
-- Use the top-level `visualization/plots/` directories to store generated figures for FK, IK, Jacobian, and trajectories.
+* Zero pose validation
+* Bent-leg configurations
+* FK → IK → FK consistency checks
 
-## Development Guidelines
+---
 
-- Keep leg-side symmetry explicit in kinematics code.
-- Keep robot geometry parameterized in `configs/robot_config.py`.
-- Add unit tests or example scripts for new kinematics or dynamics functions.
-- Document any new simulation controls or URDF changes in this README.
+## 📊 Validation
+
+* ✔ Left/right symmetry consistency
+* ✔ Jacobian numerical stability
+* ✔ IK accuracy (millimeter-level error)
+* ✔ FK/IK round-trip validation
+
+---
+
+## 📌 Summary
+
+This project implements the **core mathematical and computational blocks of a bipedal robot lower body**:
+
+* Forward kinematics
+* Differential kinematics (Jacobian)
+* Inverse kinematics
+* Simulation integration
+
+It provides a solid foundation for extending toward **full-body control, balance, and locomotion**.
