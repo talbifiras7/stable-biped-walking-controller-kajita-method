@@ -106,7 +106,7 @@ class ForwardKinematics:
         print("q (deg):", np.round(np.degrees(q), 3))
         print("position:", np.round(p, 6))
         print("rotation:\n", np.round(R, 3))
-        print("cond(J):", np.linalg.cond(J))
+        print("Jacobian:\n", np.round(J, 6))
 
 
     # ---------------- PLOT ----------------
