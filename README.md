@@ -1,6 +1,6 @@
-# 🤖 PFA Bipedal Robot Project
+# Bipedal Robot Project
 
-## 📌 Overview
+##  Overview
 
 This project implements the **core kinematics pipeline of a lower-body bipedal robot**, including forward kinematics, Jacobian computation, inverse kinematics, and simulation in PyBullet.
 
@@ -8,7 +8,7 @@ The system models a **12-DOF humanoid lower body (6 DOF per leg)** with consiste
 
 ---
 
-## 🧠 Key Features
+##  Key Features
 
 * ✅ Full **Forward Kinematics (FK)** for both legs
 * ✅ Explicit **left/right symmetry modeling**
@@ -20,7 +20,7 @@ The system models a **12-DOF humanoid lower body (6 DOF per leg)** with consiste
 
 ---
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```id="p4j8xk"
 PFA/
@@ -57,9 +57,9 @@ PFA/
 
 ---
 
-## ⚙️ Kinematic Model
+## Kinematic Model
 
-### 🔗 Structure
+### Structure
 
 Each leg is modeled as:
 
@@ -75,7 +75,7 @@ Total system:
 
 ---
 
-### 🔁 Forward Kinematics
+### Forward Kinematics
 
 The full transform is computed as:
 
@@ -97,7 +97,7 @@ Outputs:
 
 ---
 
-### 📐 Jacobian
+### Jacobian
 
 A **6×6 Jacobian** is computed numerically:
 
@@ -114,7 +114,7 @@ Used for:
 
 ---
 
-### 🎯 Inverse Kinematics
+### Inverse Kinematics
 
 Solved using **Newton-Raphson with pseudo-inverse**:
 
@@ -137,9 +137,9 @@ Features:
 
 ---
 
-## ▶️ How to Run
+## How to Run
 
-### 🔹 Simulation
+### Simulation
 
 ```bash id="g2c7ha"
 python simulation/simulation.py
@@ -162,7 +162,7 @@ These tests include:
 
 ---
 
-## 📊 Validation
+## Validation
 
 * ✔ Left/right symmetry consistency
 * ✔ Jacobian numerical stability
@@ -171,7 +171,7 @@ These tests include:
 
 ---
 
-## 📌 Summary
+## Summary
 
 This project implements the **core mathematical and computational blocks of a bipedal robot lower body**:
 
