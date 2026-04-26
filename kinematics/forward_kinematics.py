@@ -119,8 +119,7 @@ class ForwardKinematics:
         fk_l= ForwardKinematics("left")
         p_l = fk_l.position(q)
 
-        fig = plt.figure()
-        ax = fig.add_subplot(projection='3d')
+        fig,ax = plt.subplots(projection='3d')
 
         ax.scatter(0, 0, 0)
 
