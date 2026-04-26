@@ -164,10 +164,10 @@ if __name__ == "__main__":
 
         print(f"\n--- {side.upper()} LEG ---")
 
-        q_ref = np.array([0.05, -0.35, 0.0, 0.70, -0.35, -0.05])
+        q_ref = np.array([0.1, -0.8, 0.0, 0.3, -0.35, -0.85])
 
         T = fk.compute(q_ref)
         p = T[:3, 3]
         R = T[:3, :3]
 
-        q_sol, ok = ik.solve(p, R, q_init=q_ref, verbose=True)
+        q_sol, ok = ik.solve(p, R, q_init=q_ref+ np.random.uniform(-0.5, 0.5, size=6), verbose=True)
