@@ -1,0 +1,230 @@
+<?xml version="1.0"?>
+<robot name="humanoid_lower_body">
+
+  <!-- ========== BASE ========== -->
+  <link name="pelvis">
+    <inertial>
+      <mass value="5"/>
+      <inertia ixx="0.1" iyy="0.1" izz="0.1" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+    <visual>
+      <geometry><box size="0.2 0.3 0.1"/></geometry>
+    </visual>
+    <collision>
+      <geometry><box size="0.2 0.3 0.1"/></geometry>
+    </collision>
+  </link>
+
+  <!-- ========== LEFT LEG ========== -->
+
+  <link name="l_hip_yaw_link">
+    <inertial><mass value="1"/><inertia ixx="0.01" iyy="0.01" izz="0.01" ixy="0" ixz="0" iyz="0"/></inertial>
+    <visual><geometry><sphere radius="0.04"/></geometry></visual>
+    <collision><geometry><sphere radius="0.04"/></geometry></collision>
+  </link>
+
+  <joint name="l_hip_yaw" type="revolute">
+    <parent link="pelvis"/>
+    <child link="l_hip_yaw_link"/>
+    <origin xyz="0.1 0.1 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="5"/>
+    <dynamics damping="0.1"/>
+  </joint>
+
+  <link name="l_hip_roll_link">
+    <inertial><mass value="1"/><inertia ixx="0.01" iyy="0.01" izz="0.01" ixy="0" ixz="0" iyz="0"/></inertial>
+    <visual><geometry><sphere radius="0.04"/></geometry></visual>
+    <collision><geometry><sphere radius="0.04"/></geometry></collision>
+  </link>
+
+  <joint name="l_hip_roll" type="revolute">
+    <parent link="l_hip_yaw_link"/>
+    <child link="l_hip_roll_link"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-1.0" upper="1.0" effort="100" velocity="5"/>
+    <dynamics damping="0.1"/>
+  </joint>
+
+  <link name="l_hip_pitch_link">
+    <inertial><mass value="1"/><inertia ixx="0.01" iyy="0.01" izz="0.01" ixy="0" ixz="0" iyz="0"/></inertial>
+    <visual><geometry><sphere radius="0.04"/></geometry></visual>
+    <collision><geometry><sphere radius="0.04"/></geometry></collision>
+  </link>
+
+  <joint name="l_hip_pitch" type="revolute">
+    <parent link="l_hip_roll_link"/>
+    <child link="l_hip_pitch_link"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.5" upper="1.5" effort="100" velocity="5"/>
+    <dynamics damping="0.1"/>
+  </joint>
+
+  <!-- FIXED: was l_thigh (wrong name for child of knee); now correct chain is hip_pitch -> thigh -> knee -> shank -->
+  <link name="l_thigh">
+    <inertial><mass value="2"/><inertia ixx="0.02" iyy="0.02" izz="0.02" ixy="0" ixz="0" iyz="0"/></inertial>
+    <visual>
+      <origin xyz="0 0 -0.2"/>
+      <geometry><cylinder radius="0.04" length="0.4"/></geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 -0.2"/>
+      <geometry><cylinder radius="0.04" length="0.4"/></geometry>
+    </collision>
+  </link>
+
+  <!-- FIXED: l_thigh is now correctly the child of hip_pitch (thigh hangs below hip) -->
+  <joint name="l_hip_pitch_to_thigh" type="fixed">
+    <parent link="l_hip_pitch_link"/>
+    <child link="l_thigh"/>
+  </joint>
+
+  <link name="l_shank">
+    <inertial><mass value="2"/><inertia ixx="0.02" iyy="0.02" izz="0.02" ixy="0" ixz="0" iyz="0"/></inertial>
+    <visual>
+      <origin xyz="0 0 -0.2"/>
+      <geometry><cylinder radius="0.035" length="0.4"/></geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 -0.2"/>
+      <geometry><cylinder radius="0.035" length="0.4"/></geometry>
+    </collision>
+  </link>
+
+  <!-- FIXED: knee now correctly connects thigh (parent) to shank (child) -->
+  <joint name="l_knee" type="revolute">
+    <parent link="l_thigh"/>
+    <child link="l_shank"/>
+    <origin xyz="0 0 -0.4"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="0" upper="2.0" effort="100" velocity="5"/>
+    <dynamics damping="0.1"/>
+  </joint>
+
+  <link name="l_foot">
+    <inertial><mass value="1"/><inertia ixx="0.01" iyy="0.01" izz="0.01" ixy="0" ixz="0" iyz="0"/></inertial>
+    <visual>
+      <origin xyz="0.05 0 0"/>
+      <geometry><box size="0.2 0.1 0.04"/></geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.05 0 0"/>
+      <geometry><box size="0.2 0.1 0.04"/></geometry>
+    </collision>
+  </link>
+
+  <joint name="l_ankle_pitch" type="revolute">
+    <parent link="l_shank"/>
+    <child link="l_foot"/>
+    <origin xyz="0 0 -0.4"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-0.5" upper="0.5" effort="100" velocity="5"/>
+    <dynamics damping="0.1"/>
+  </joint>
+
+  <!-- ========== RIGHT LEG (mirror of left) ========== -->
+
+  <link name="r_hip_yaw_link">
+    <inertial><mass value="1"/><inertia ixx="0.01" iyy="0.01" izz="0.01" ixy="0" ixz="0" iyz="0"/></inertial>
+    <visual><geometry><sphere radius="0.04"/></geometry></visual>
+    <collision><geometry><sphere radius="0.04"/></geometry></collision>
+  </link>
+
+  <joint name="r_hip_yaw" type="revolute">
+    <parent link="pelvis"/>
+    <child link="r_hip_yaw_link"/>
+    <origin xyz="-0.1 0.1 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="5"/>
+    <dynamics damping="0.1"/>
+  </joint>
+
+  <link name="r_hip_roll_link">
+    <inertial><mass value="1"/><inertia ixx="0.01" iyy="0.01" izz="0.01" ixy="0" ixz="0" iyz="0"/></inertial>
+    <visual><geometry><sphere radius="0.04"/></geometry></visual>
+    <collision><geometry><sphere radius="0.04"/></geometry></collision>
+  </link>
+
+  <joint name="r_hip_roll" type="revolute">
+    <parent link="r_hip_yaw_link"/>
+    <child link="r_hip_roll_link"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-1.0" upper="1.0" effort="100" velocity="5"/>
+    <dynamics damping="0.1"/>
+  </joint>
+
+  <link name="r_hip_pitch_link">
+    <inertial><mass value="1"/><inertia ixx="0.01" iyy="0.01" izz="0.01" ixy="0" ixz="0" iyz="0"/></inertial>
+    <visual><geometry><sphere radius="0.04"/></geometry></visual>
+    <collision><geometry><sphere radius="0.04"/></geometry></collision>
+  </link>
+
+  <joint name="r_hip_pitch" type="revolute">
+    <parent link="r_hip_roll_link"/>
+    <child link="r_hip_pitch_link"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.5" upper="1.5" effort="100" velocity="5"/>
+    <dynamics damping="0.1"/>
+  </joint>
+
+  <link name="r_thigh">
+    <inertial><mass value="2"/><inertia ixx="0.02" iyy="0.02" izz="0.02" ixy="0" ixz="0" iyz="0"/></inertial>
+    <visual>
+      <origin xyz="0 0 -0.2"/>
+      <geometry><cylinder radius="0.04" length="0.4"/></geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 -0.2"/>
+      <geometry><cylinder radius="0.04" length="0.4"/></geometry>
+    </collision>
+  </link>
+
+  <joint name="r_hip_pitch_to_thigh" type="fixed">
+    <parent link="r_hip_pitch_link"/>
+    <child link="r_thigh"/>
+  </joint>
+
+  <link name="r_shank">
+    <inertial><mass value="2"/><inertia ixx="0.02" iyy="0.02" izz="0.02" ixy="0" ixz="0" iyz="0"/></inertial>
+    <visual>
+      <origin xyz="0 0 -0.2"/>
+      <geometry><cylinder radius="0.035" length="0.4"/></geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 -0.2"/>
+      <geometry><cylinder radius="0.035" length="0.4"/></geometry>
+    </collision>
+  </link>
+
+  <joint name="r_knee" type="revolute">
+    <parent link="r_thigh"/>
+    <child link="r_shank"/>
+    <origin xyz="0 0 -0.4"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="0" upper="2.0" effort="100" velocity="5"/>
+    <dynamics damping="0.1"/>
+  </joint>
+
+  <link name="r_foot">
+    <inertial><mass value="1"/><inertia ixx="0.01" iyy="0.01" izz="0.01" ixy="0" ixz="0" iyz="0"/></inertial>
+    <visual>
+      <origin xyz="0.05 0 0"/>
+      <geometry><box size="0.2 0.1 0.04"/></geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.05 0 0"/>
+      <geometry><box size="0.2 0.1 0.04"/></geometry>
+    </collision>
+  </link>
+
+  <joint name="r_ankle_pitch" type="revolute">
+    <parent link="r_shank"/>
+    <child link="r_foot"/>
+    <origin xyz="0 0 -0.4"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-0.5" upper="0.5" effort="100" velocity="5"/>
+    <dynamics damping="0.1"/>
+  </joint>
+
+</robot>
+ 
