@@ -1,4 +1,4 @@
-# Bipedal Robot Project
+# Biped Robot Project
 
 ##  Overview
 
