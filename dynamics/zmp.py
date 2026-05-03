@@ -221,6 +221,7 @@ class ZMPPlanner:
             "left":  init_left.copy(),
         }
 
+        prev_support = None  
         for s_idx, step in enumerate(steps):
             swing   = step.side
             support = "left" if swing == "right" else "right"
@@ -230,6 +231,13 @@ class ZMPPlanner:
             t1 = t0 + self._n_total
             t_ds_end = t0 + self._n_ds
 
+             # ✅ Determine previous support foot position
+            if prev_support is None:
+            # First step → assume initial support foot
+                prev_support_pos = cur[support].copy()
+            else:
+                prev_support_pos = prev_support.copy()
+            
             # ── ZMP reference ─────────────────────────────────────────
             self._fill_zmp(
                 zmp_x, zmp_y,
@@ -253,6 +261,7 @@ class ZMPPlanner:
                       f"support @ ({cur[support][0]:.3f}, {cur[support][1]:.3f})")
 
             # Advance current swing foot to its new position
+            prev_support = cur[support].copy()
             cur[swing] = target.copy()
 
         data = ZMPData(
@@ -278,7 +287,7 @@ class ZMPPlanner:
                   t0:       int,
                   t_ds_end: int,
                   t1:       int,
-                  p_swing:  np.ndarray,
+                  p_prev_support:  np.ndarray,
                   p_support:np.ndarray,
                   ) -> None:
         """
@@ -293,8 +302,8 @@ class ZMPPlanner:
         if n_ds > 0:
             # Linear interpolation  alpha ∈ [0, 1]
             alpha = np.linspace(0.0, 1.0, n_ds)
-            zmp_x[t0:t_ds_end] = (1.0 - alpha) * p_swing[0] + alpha * p_support[0]
-            zmp_y[t0:t_ds_end] = (1.0 - alpha) * p_swing[1] + alpha * p_support[1]
+            zmp_x[t0:t_ds_end] = (1.0 - alpha) * p_prev_support[0] + alpha * p_support[0]
+            zmp_y[t0:t_ds_end] = (1.0 - alpha) * p_prev_support[1] + alpha * p_support[1]
 
         # SS: fixed over support foot
         zmp_x[t_ds_end:t1] = p_support[0]
@@ -484,13 +493,6 @@ class ZMPPlanner:
         plt.figure()
         plt.plot(data.zmp_x, data.zmp_y)
 
-    # Plot footsteps (VERY IMPORTANT for debugging)
-        right = data.foot_pos["right"]
-        left  = data.foot_pos["left"]
-
-        plt.scatter(right[:, 0], right[:, 1], marker='x', label="Right foot")
-        plt.scatter(left[:, 0],  left[:, 1],  marker='o', label="Left foot")
-
         plt.title("ZMP Top View")
         plt.xlabel("ZMP X [m]")
         plt.ylabel("ZMP Y [m]")
@@ -512,7 +514,7 @@ class ZMPPlanner:
         image_path = f"visualization/plots/dynamics/zmp_trajectoire/CONTACT_PHASE.png"
         plt.savefig(image_path,dpi=300,bbox_inches='tight')
 
-        if plt.show:
+        if show:
             plt.show()
         
 
