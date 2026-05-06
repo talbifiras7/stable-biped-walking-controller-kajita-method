@@ -366,7 +366,7 @@ class LIPM:
         print(f"  eigenvalues(A) = {np.linalg.eigvals(self.A)}")
         
     @staticmethod
-    def plot(traj: CoMTrajectory, u_x=None, u_y=None):
+    def plot(traj: CoMTrajectory, u_x=None, u_y=None, foot_z=None) -> None:
         T = traj.T
         t = np.arange(T) * traj.dt
 
@@ -381,7 +381,9 @@ class LIPM:
         plt.ylabel("Position [m]")
         plt.legend()
         plt.grid(True)
-
+        image_path=f"visualization/plots/dynamics_plots/com_trajectoire/com_vs_zmp.png"
+        plt.savefig(image_path,dpi=300,bbox_inches='tight')
+         
     # ── 2. Velocity & Acceleration ────────────────
         plt.figure()
         plt.title("Velocity & Acceleration")
@@ -393,6 +395,8 @@ class LIPM:
         plt.ylabel("Vel / Acc")
         plt.legend()
         plt.grid(True)
+        image_path=f"visualization/plots/dynamics_plots/com_trajectoire/vel_acc.png"
+        plt.savefig(image_path,dpi=300,bbox_inches='tight')
 
     # ── 3. Jerk ───────────────────────────────────
         plt.figure()
@@ -407,8 +411,49 @@ class LIPM:
         plt.ylabel("Jerk [m/s³]")
         plt.legend()
         plt.grid(True)
+        image_path=f"visualization/plots/dynamics_plots/com_trajectoire/jerk_inputs.png"
+        plt.savefig(image_path,dpi=300,bbox_inches='tight')
+        
+    # ── 4. Foot Z trajectory ─────────────────────────────
+    @staticmethod
+    def plot_feet(T, dt, step_time=0.8, swing_height=0.05):
 
-        plt.show()
+        t = np.arange(T) * dt
+
+        foot_z_left = np.zeros(T)
+        foot_z_right = np.zeros(T)
+
+        step_samples = int(step_time / dt)
+
+        for k in range(T):
+            phase = (k // step_samples) % 2
+            local = (k % step_samples) / step_samples
+
+            swing = swing_height * np.sin(np.pi * local)
+
+            if phase == 0:
+                foot_z_left[k] = swing
+            else:
+                foot_z_right[k] = swing
+
+    # ── Plot BOTH in same figure ──
+        plt.figure()
+        plt.title("Foot Trajectories (Z height)")
+
+        plt.plot(t, foot_z_left, label="left foot")
+        plt.plot(t, foot_z_right, label="right foot")
+
+        plt.xlabel("Time [s]")
+        plt.ylabel("Height [m]")
+        plt.legend()
+        plt.grid(True)
+
+        image_path = "visualization/plots/dynamics_plots/com_trajectoire/foot_z.png"
+        plt.savefig(image_path, dpi=300, bbox_inches='tight')
+        plt.close()
+
+        return foot_z_left, foot_z_right
+
 
 # STAND-ALONE TEST
 if __name__ == "__main__":
@@ -485,5 +530,7 @@ if __name__ == "__main__":
     # ── Summary ───────────────────────────────────────────────────────
     print("\n[ CoM trajectory summary ]")
     com3.print_summary()
-    
-    lipm.plot(com3, u_test)
+    t = np.arange(T) * dt
+    foot_z = 0.05 * np.maximum(0, np.sin(np.pi *t))
+    lipm.plot(com3, u_test, foot_z=foot_z)
+    lipm.plot_feet(T, dt)
