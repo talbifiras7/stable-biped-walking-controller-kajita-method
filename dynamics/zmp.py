@@ -475,7 +475,7 @@ class ZMPPlanner:
         plt.xlabel("Time [s]")
         plt.ylabel("ZMP X [m]")
         plt.grid()
-        image_path = f"visualization/plots/dynamics/zmp_trajectoire/ZMP_X_VSTIME.png"   
+        image_path = f"visualization/plots/dynamics_plots/zmp_trajectoire/ZMP_X_VSTIME.png"   
         plt.savefig(image_path, dpi=300, bbox_inches="tight")     
 
 
@@ -486,7 +486,7 @@ class ZMPPlanner:
         plt.xlabel("Time [s]")
         plt.ylabel("ZMP Y [m]")
         plt.grid()
-        image_path = f"visualization/plots/dynamics/zmp_trajectoire/ZMP_Y_VSTIME.png" 
+        image_path = f"visualization/plots/dynamics_plots/zmp_trajectoire/ZMP_Y_VSTIME.png" 
         plt.savefig(image_path, dpi=300, bbox_inches="tight")  
 
     # 3. TOP VIEW (CRITICAL)
@@ -499,7 +499,7 @@ class ZMPPlanner:
         plt.axis('equal')
         plt.grid()
         plt.legend()
-        image_path = f"visualization/plots/dynamics/zmp_trajectoire/TOP_VIEW.png"
+        image_path = f"visualization/plots/dynamics_plots/zmp_trajectoire/TOP_VIEW.png"
         plt.savefig(image_path, dpi=300, bbox_inches="tight")
 
     # 4. CONTACT PHASE
@@ -511,7 +511,7 @@ class ZMPPlanner:
         plt.ylabel("Contact")
         plt.legend()
         plt.grid()
-        image_path = f"visualization/plots/dynamics/zmp_trajectoire/CONTACT_PHASE.png"
+        image_path = f"visualization/plots/dynamics_plots/zmp_trajectoire/CONTACT_PHASE.png"
         plt.savefig(image_path,dpi=300,bbox_inches='tight')
 
         if show:
