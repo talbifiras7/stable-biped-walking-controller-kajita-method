@@ -74,15 +74,16 @@ Rx(a)
 
 Returns the rotation matrix:
 
+$$
 [
 R_x(a)=
 \begin{bmatrix}
-1 & 0 & 0 \
-0 & \cos(a) & -\sin(a) \
+1 & 0 & 0 \\
+0 & \cos(a) & -\sin(a) \\
 0 & \sin(a) & \cos(a)
 \end{bmatrix}
 ]
-
+$$
 ---
 
 ## Rotation Around Y-axis
@@ -92,7 +93,7 @@ Ry(a)
 ```
 
 Returns the rotation matrix:
-
+$$
 [
 R_y(a)=
 \begin{bmatrix}
@@ -101,7 +102,7 @@ R_y(a)=
 -\sin(a) & 0 & \cos(a)
 \end{bmatrix}
 ]
-
+$$
 ---
 
 ## Rotation Around Z-axis
@@ -111,16 +112,16 @@ Rz(a)
 ```
 
 Returns the rotation matrix:
-
+$$
 [
 R_z(a)=
 \begin{bmatrix}
-\cos(a) & -\sin(a) & 0 \
-\sin(a) & \cos(a) & 0 \
+\cos(a) & -\sin(a) & 0 \\
+\sin(a) & \cos(a) & 0 \\
 0 & 0 & 1
 \end{bmatrix}
 ]
-
+$$
 ---
 
 # Homogeneous Transformation Matrix
@@ -137,15 +138,15 @@ Builds a 4×4 homogeneous transformation matrix from:
 * A translation vector `t`
 
 ## Mathematical Form
-
+$$
 [
 T =
 \begin{bmatrix}
-R & t \
+R & t \\
 0 & 1
 \end{bmatrix}
 ]
-
+$$
 This representation is widely used in:
 
 * Coordinate frame transformations
