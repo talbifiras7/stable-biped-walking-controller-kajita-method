@@ -457,7 +457,7 @@ class LIPM:
 
 # STAND-ALONE TEST
 if __name__ == "__main__":
-    print("=" * 60)
+    print("=" * 60) 
     print("  LIPM — stand-alone test")
     print("=" * 60)
 
