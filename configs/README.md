@@ -96,8 +96,8 @@ Returns the rotation matrix:
 [
 R_y(a)=
 \begin{bmatrix}
-\cos(a) & 0 & \sin(a) \
-0 & 1 & 0 \
+\cos(a) & 0 & \sin(a) \\
+0 & 1 & 0 \\
 -\sin(a) & 0 & \cos(a)
 \end{bmatrix}
 ]
