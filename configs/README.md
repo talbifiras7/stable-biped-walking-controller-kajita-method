@@ -2,14 +2,14 @@
 
 This module defines the humanoid robot geometric parameters and provides reusable mathematical utilities for 3D transformations.
 
-It acts as the shared foundation for the entire project and is used by:
+It serves as the shared mathematical foundation for the entire robotics framework and is used by:
 
-* Forward Kinematics
-* Inverse Kinematics
-* Dynamics
-* Walking Pattern Generation
-* Visualization
-* Simulation Pipelines
+- Forward Kinematics
+- Inverse Kinematics
+- Dynamics
+- Walking Pattern Generation
+- Visualization
+- Simulation Pipelines
 
 ---
 
@@ -23,10 +23,21 @@ robot_config.py
 
 # Features
 
-* Centralized robot geometry configuration
-* Elementary 3D rotation matrices
-* Homogeneous transformation matrix generation
-* Reusable utilities for robotics computations
+- Centralized robot geometry configuration
+- Standard 3D rotation matrices
+- Homogeneous transformation matrix generation
+- Reusable robotics mathematics utilities
+- Consistent coordinate transformation tools
+
+---
+
+# Coordinate Convention
+
+The project uses a right-handed coordinate system:
+
+- **X-axis** → Forward
+- **Y-axis** → Lateral
+- **Z-axis** → Upward
 
 ---
 
@@ -35,6 +46,8 @@ robot_config.py
 The robot dimensions are stored using a Python dataclass.
 
 ```python
+from dataclasses import dataclass
+
 @dataclass
 class RobotGeometry:
     pelvis_height: float = 0.85
@@ -47,14 +60,14 @@ class RobotGeometry:
 ## Geometry Parameters
 
 | Parameter       | Description                   | Value    |
-| --------------- | ----------------------------- | -------- |
-| `pelvis_height` | Pelvis height from the ground | `0.85 m` |
+|----------------|-------------------------------|----------|
+| `pelvis_height` | Pelvis height from ground     | `0.85 m` |
 | `thigh_length`  | Upper leg length              | `0.40 m` |
 | `shank_length`  | Lower leg length              | `0.40 m` |
 | `foot_height`   | Foot thickness                | `0.05 m` |
-| `hip_width`     | Distance between the hips     | `0.18 m` |
+| `hip_width`     | Distance between hip joints   | `0.18 m` |
 
-A global geometry instance is created for use across the project:
+A global geometry instance is created for use throughout the project:
 
 ```python
 GEO = RobotGeometry()
@@ -66,13 +79,15 @@ GEO = RobotGeometry()
 
 The module provides standard 3D rotation matrices.
 
+---
+
 ## Rotation Around X-axis
 
 ```python
 Rx(a)
 ```
 
-Returns the rotation matrix:
+Returns the matrix:
 
 $$
 R_x(a)=
@@ -82,6 +97,7 @@ R_x(a)=
 0 & \sin(a) & \cos(a)
 \end{bmatrix}
 $$
+
 ---
 
 ## Rotation Around Y-axis
@@ -90,7 +106,7 @@ $$
 Ry(a)
 ```
 
-Returns the rotation matrix:
+Returns the matrix:
 
 $$
 R_y(a)=
@@ -100,6 +116,7 @@ R_y(a)=
 -\sin(a) & 0 & \cos(a)
 \end{bmatrix}
 $$
+
 ---
 
 ## Rotation Around Z-axis
@@ -108,7 +125,7 @@ $$
 Rz(a)
 ```
 
-Returns the rotation matrix:
+Returns the matrix:
 
 $$
 R_z(a)=
@@ -118,6 +135,7 @@ R_z(a)=
 0 & 0 & 1
 \end{bmatrix}
 $$
+
 ---
 
 # Homogeneous Transformation Matrix
@@ -130,8 +148,8 @@ homogeneous(R, t)
 
 Builds a 4×4 homogeneous transformation matrix from:
 
-* A rotation matrix `R`
-* A translation vector `t`
+- A rotation matrix `R`
+- A translation vector `t`
 
 ## Mathematical Form
 
@@ -142,12 +160,13 @@ R & t \\
 0 & 1
 \end{bmatrix}
 $$
+
 This representation is widely used in:
 
-* Coordinate frame transformations
-* Robot pose estimation
-* Kinematic chains
-* Motion simulation
+- Coordinate frame transformations
+- Robot pose estimation
+- Kinematic chains
+- Motion simulation
 
 ---
 
@@ -177,9 +196,3 @@ print(T)
 ```
 
 ---
-
-# Role in the Project
-
-This module serves as the low-level mathematical backbone of the humanoid robot framework.
-
-By centralizing geometry parameters and transformation utilities, it ensures consistency across all robotics subsystems.
