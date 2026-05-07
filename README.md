@@ -1,183 +1,214 @@
-# Biped Robot Project
+# Humanoid Walking Controller
 
-##  Overview
+A modular humanoid robotics framework for:
 
-This project implements the **core kinematics pipeline of a lower-body bipedal robot**, including forward kinematics, Jacobian computation, inverse kinematics, and simulation in PyBullet.
+- Forward and inverse kinematics
+- Dynamic walking generation
+- ZMP trajectory planning
+- LIPM-based locomotion
+- Walking simulation and visualization
 
-The system models a **12-DOF humanoid lower body (6 DOF per leg)** with consistent handling of **left/right symmetry** and full **6D foot pose control (position + orientation)**.
-
----
-
-##  Key Features
-
-* Full **Forward Kinematics (FK)** for both legs
-* Explicit **left/right symmetry modeling**
-* **6×6 Jacobian** (numerical, finite differences)
-* **Inverse Kinematics (IK)** using Jacobian pseudo-inverse
-* Control of **foot position and orientation**
-* **FK → IK → FK validation pipeline**
-* Integration with **PyBullet simulation**
+The project is designed as a research-oriented humanoid locomotion stack with clean subsystem separation and reusable robotics components.
 
 ---
 
-## Project Structure
+# Project Architecture
 
-```id="p4j8xk"
-PFA/
+```text
+Humanoid Walking Controller
 │
-├── configs/
-│   └── robot_config.py
-│       → Robot geometry (pelvis, thigh, shank, foot)
-│       → Rotation matrices (Rx, Ry, Rz)
-│       → Homogeneous transformation utilities
-│
-├── kinematics/
-│   ├── forward_kinematics.py
-│   │   → Computes pelvis → foot transform
-│   │   → Returns position, rotation, Jacobian
-│   │   → Handles left/right symmetry
-│   │
-│   └── inverse_kinematics.py
-│       → Newton-Raphson IK solver
-│       → Uses Jacobian pseudo-inverse
-│       → Supports full pose targets
-│
-├── simulation/
-│   ├── simulation.py
-│   │   → PyBullet simulation entry point
-│   │   → Applies joint commands to both legs
-│   │
-│   └── hum.urdf
-│       → Humanoid lower-body model
-│
-├── visualization/
-│   └── plots/
-│       → FK / IK / Jacobian visual outputs
+├── robot_config/     → Geometry and transformation utilities
+├── kinematics/       → Forward and inverse kinematics
+├── dynamics/         → ZMP + LIPM walking dynamics
+├── visualization/    → Plotting and rendering tools
+└── simulation/       → Walking simulation pipelines
 ```
 
 ---
 
-## Kinematic Model
+# Core Modules
 
-### Structure
+## Robot Configuration
 
-Each leg is modeled as:
+Defines:
 
-```id="zt3p9f"
-Pelvis → Hip (3 DOF) → Knee (1 DOF) → Ankle (2 DOF) → Foot
-```
+- Robot geometry
+- Rotation matrices
+- Homogeneous transformations
+- Coordinate utilities
 
-Total system:
+📄 See:
 
-```id="l7x6mk"
-2 legs × 6 DOF = 12 DOF
-```
-
----
-
-### Forward Kinematics
-
-The full transform is computed as:
-
-```id="b7w9as"
-T = T_pelvis→hip
-  · R_hip(q0,q1,q2)
-  · T_hip→knee
-  · R_knee(q3)
-  · T_knee→ankle
-  · R_ankle(q4,q5)
-  · T_ankle→foot
-```
-
-Outputs:
-
-* Foot position `p ∈ ℝ³`
-* Foot orientation `R ∈ SO(3)`
-* Homogeneous transform `T ∈ ℝ⁴ˣ⁴`
-
----
-
-### Jacobian
-
-A **6×6 Jacobian** is computed numerically:
-
-```id="5rpk4y"
-J = [ linear velocity
-      angular velocity ]
-```
-
-Used for:
-
-* inverse kinematics
-* local motion mapping
-* singularity analysis
-
----
-
-### Inverse Kinematics
-
-Solved using **Newton-Raphson with pseudo-inverse**:
-
-```id="xk6m5y"
-Δq = J⁺ · e
-```
-
-Where:
-
-```id="k2a6xp"
-e = [ position error
-      orientation error ]
-```
-
-Features:
-
-* Iterative convergence
-* Full pose tracking
-* Stable updates via gain scaling
-
----
-
-## How to Run
-
-### Simulation
-
-```bash id="g2c7ha"
-python simulation/simulation.py
+```text
+robot_config/README.md
 ```
 
 ---
 
-### 🔹 Kinematics Tests
+## Kinematics
 
-```bash id="s6nq4j"
-python kinematics/forward_kinematics.py
-python kinematics/inverse_kinematics.py
+Implements:
+
+- Forward kinematics
+- Inverse kinematics
+- Jacobian computation
+- Pose reconstruction
+
+📄 See:
+
+```text
+kinematics/README.md
 ```
 
-These tests include:
+---
 
-* Zero pose validation
-* Bent-leg configurations
-* FK → IK → FK consistency checks
+## Dynamics
+
+Implements:
+
+- Linear Inverted Pendulum Model (LIPM)
+- Zero Moment Point (ZMP)
+- Footstep planning
+- CoM trajectory generation
+
+📄 See:
+
+```text
+dynamics/README.md
+```
 
 ---
 
-## Validation
+# Walking Pipeline
 
-* Left/right symmetry consistency
-* Jacobian numerical stability
-* IK accuracy (millimeter-level error)
-* FK/IK round-trip validation
+The humanoid walking pipeline follows:
+
+$$
+\text{Footsteps}
+\rightarrow
+\text{ZMP Planning}
+\rightarrow
+\text{LIPM Dynamics}
+\rightarrow
+\text{CoM Trajectory}
+\rightarrow
+\text{Inverse Kinematics}
+\rightarrow
+\text{Joint Commands}
+$$
 
 ---
 
-## Summary
+# Features
 
-This project implements the **core mathematical and computational blocks of a bipedal robot lower body**:
+- Modular humanoid robotics architecture
+- 12-DOF humanoid leg model
+- Numerical inverse kinematics
+- Jacobian-based solvers
+- ZMP trajectory generation
+- LIPM dynamic walking
+- Walking visualization tools
+- Research-oriented implementation
 
-* Forward kinematics
-* Differential kinematics (Jacobian)
-* Inverse kinematics
-* Simulation integration
+---
 
-It provides a solid foundation for extending toward **full-body control, balance, and locomotion**.
+# Dependencies
+
+Install required packages:
+
+```bash
+pip install numpy matplotlib
+```
+
+---
+
+# Quick Example
+
+## Forward Kinematics
+
+```python
+import numpy as np
+from kinematics.forward_kinematics import ForwardKinematics
+
+fk = ForwardKinematics("right")
+
+q = np.zeros(6)
+
+T = fk.compute(q)
+
+print(T)
+```
+
+---
+
+## ZMP Walking Generation
+
+```python
+from dynamics.zmp import ZMPPlanner
+
+planner = ZMPPlanner()
+
+steps = planner.make_forward_steps(
+    n=6,
+    step_length=0.1
+)
+
+zmp_data = planner.plan(steps)
+```
+
+---
+
+# Visualization
+
+The framework can generate:
+
+- Foot trajectory plots
+- ZMP trajectories
+- CoM trajectories
+- IK convergence plots
+- Walking phase diagrams
+- Dynamic walking visualizations
+
+Generated plots are automatically saved inside:
+
+```text
+visualization/plots/
+```
+
+---
+
+# Mathematical Foundations
+
+This project is based on classical humanoid robotics methods including:
+
+- Homogeneous transformations
+- Numerical Jacobians
+- Newton–Raphson inverse kinematics
+- Zero Moment Point (ZMP)
+- Linear Inverted Pendulum Model (LIPM)
+- Jerk-controlled dynamic walking
+
+---
+
+# Future Extensions
+
+Planned additions include:
+
+- Preview control
+- MPC walking controller
+- Whole-body control
+- ROS integration
+- Physics engine simulation
+- Reinforcement learning locomotion
+
+---
+
+# License
+
+MIT License
+
+---
+
+# References
+
+- Kajita et al. — Introduction to Humanoid Robotics
