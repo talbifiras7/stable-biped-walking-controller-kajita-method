@@ -4,13 +4,13 @@ This module implements the forward and inverse kinematics of a 12-DOF humanoid r
 
 It provides the mathematical foundation required to:
 
-* Compute foot positions and orientations
-* Estimate robot joint configurations
-* Solve pose reconstruction problems
-* Generate walking motions
-* Support dynamics and control algorithms
+- Compute foot positions and orientations
+- Estimate robot joint configurations
+- Solve pose reconstruction problems
+- Generate walking motions
+- Support dynamics and control algorithms
 
-The implementation supports both left and right legs with a fully symmetric kinematic structure.
+The implementation supports both left and right legs using a symmetric kinematic structure.
 
 ---
 
@@ -30,20 +30,20 @@ kinematics/
 
 Computes the end-effector pose from joint angles:
 
-[
+$$
 q \rightarrow T_{foot}
-]
+$$
 
-Inputs:
+### Inputs
 
-* Joint configuration vector
+- Joint configuration vector
 
-Outputs:
+### Outputs
 
-* Foot position
-* Foot orientation
-* Homogeneous transformation matrix
-* Jacobian matrix
+- Foot position
+- Foot orientation
+- Homogeneous transformation matrix
+- Jacobian matrix
 
 ---
 
@@ -51,20 +51,20 @@ Outputs:
 
 Computes the required joint angles to reach a desired foot pose:
 
-[
+$$
 T_{foot} \rightarrow q
-]
+$$
 
-Inputs:
+### Inputs
 
-* Desired foot position
-* Desired foot orientation
+- Desired foot position
+- Desired foot orientation
 
-Outputs:
+### Outputs
 
-* Joint configuration
-* Convergence information
-* Position error
+- Joint configuration
+- Convergence information
+- Position error
 
 ---
 
@@ -76,12 +76,12 @@ Outputs:
 ForwardKinematics(side)
 ```
 
-Supports:
+Supported sides:
 
-* `right` leg
-* `left` leg
+- `right`
+- `left`
 
-The implementation correctly mirrors both legs while preserving a consistent coordinate system.
+The implementation mirrors both legs while preserving a consistent coordinate system.
 
 ---
 
@@ -97,18 +97,18 @@ compute(q)
 
 Returns:
 
-[
+$$
 T =
 \begin{bmatrix}
-R & p \
+R & p \\
 0 & 1
 \end{bmatrix}
-]
+$$
 
 where:
 
-* (R) is the rotation matrix
-* (p) is the foot position
+- \(R\) is the rotation matrix
+- \(p\) is the foot position vector
 
 ---
 
@@ -120,9 +120,14 @@ position(q)
 
 Returns the 3D foot position:
 
-[
-p = [x, y, z]^T
-]
+$$
+p =
+\begin{bmatrix}
+x \\
+y \\
+z
+\end{bmatrix}
+$$
 
 ---
 
@@ -132,7 +137,7 @@ p = [x, y, z]^T
 rotation(q)
 ```
 
-Returns the 3×3 rotation matrix of the foot.
+Returns the 3×3 foot rotation matrix.
 
 ---
 
@@ -146,24 +151,24 @@ Computes the 6×6 numerical Jacobian using finite differences.
 
 The Jacobian maps joint velocities to Cartesian velocities:
 
-[
+$$
 \dot{x} = J(q)\dot{q}
-]
+$$
 
 where:
 
-[
+$$
 \dot{x} =
 \begin{bmatrix}
-v \
+v \\
 \omega
 \end{bmatrix}
-]
+$$
 
 The Jacobian includes:
 
-* Linear velocity components
-* Angular velocity components
+- Linear velocity components
+- Angular velocity components
 
 ---
 
@@ -175,11 +180,11 @@ plot_feet(q)
 
 Plots:
 
-* Left foot position
-* Right foot position
-* Pelvis reference frame
+- Left foot position
+- Right foot position
+- Pelvis reference frame
 
-The figure is automatically saved inside:
+Generated figures are automatically saved inside:
 
 ```text
 visualization/plots/fk/
@@ -201,24 +206,24 @@ Implements a Jacobian pseudo-inverse iterative solver.
 
 # Solver Method
 
-The inverse kinematics uses the Newton–Raphson iterative method.
+The inverse kinematics solver uses the Newton–Raphson iterative method.
 
 At each iteration:
 
-[
-\Delta q = J^+ e
-]
+$$
+\Delta q = J^{+} e
+$$
 
 where:
 
-* (J^+) is the pseudo-inverse Jacobian
-* (e) is the pose error vector
+- \(J^{+}\) is the pseudo-inverse Jacobian
+- \(e\) is the pose error vector
 
 The update rule becomes:
 
-[
+$$
 q_{k+1} = q_k + \Delta q
-]
+$$
 
 A damping factor is applied for improved numerical stability.
 
@@ -228,9 +233,9 @@ A damping factor is applied for improved numerical stability.
 
 Orientation tracking is computed using rotation matrix error:
 
-[
+$$
 R_{err} = R_{target}R^T
-]
+$$
 
 The angular error vector is extracted from the skew-symmetric part of the matrix.
 
@@ -246,8 +251,8 @@ solve(p_foot, R_foot)
 
 Returns:
 
-* Joint solution
-* Success flag
+- Joint solution
+- Success flag
 
 ---
 
@@ -265,8 +270,8 @@ plot_convergence(errors)
 
 Generates a convergence curve showing:
 
-* Iteration number
-* Position error evolution
+- Iteration number
+- Position error evolution
 
 Plots are automatically saved inside:
 
@@ -282,14 +287,14 @@ visualization/plots/ik/
 
 The robot pose is computed through chained homogeneous transformations:
 
-[
-T = T_1 T_2 T_3 ... T_n
-]
+$$
+T = T_1 T_2 T_3 \cdots T_n
+$$
 
 Each transformation combines:
 
-* Rotation
-* Translation
+- Rotation
+- Translation
 
 ---
 
@@ -297,7 +302,7 @@ Each transformation combines:
 
 The IK problem is solved numerically because the humanoid structure is nonlinear and highly coupled.
 
-The pseudo-inverse Jacobian method minimizes the pose error iteratively.
+The pseudo-inverse Jacobian method iteratively minimizes the pose error.
 
 ---
 
@@ -349,11 +354,11 @@ q_solution, success = ik.solve(p_target)
 
 The module can generate:
 
-* Foot position plots
-* Jacobian matrices
-* IK convergence curves
-* Transformation matrices
-* Joint angle solutions
+- Foot position plots
+- Jacobian matrices
+- IK convergence curves
+- Transformation matrices
+- Joint angle solutions
 
 ---
 
@@ -363,10 +368,8 @@ The kinematics module is one of the core subsystems of the humanoid walking cont
 
 It bridges:
 
-* Robot geometry
-* Motion generation
-* Walking control
-* Dynamics
-* Simulation
-
-All higher-level locomotion algorithms rely on accurate kinematic computation for stable humanoid walking.
+- Robot geometry
+- Motion generation
+- Walking control
+- Dynamics
+- Simulation
