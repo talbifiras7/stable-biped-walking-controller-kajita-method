@@ -87,8 +87,8 @@ class Visualizer:
             )
 
             zmp_line.set_data(
-                com_traj.zmp_x[:frame],
-                com_traj.zmp_y[:frame]
+                zmp_data.zmp_x[:frame],
+                zmp_data.zmp_y[:frame]
             )
 
             com_dot.set_data(
@@ -97,8 +97,8 @@ class Visualizer:
             )
 
             zmp_dot.set_data(
-                [com_traj.zmp_x[frame]],
-                [com_traj.zmp_y[frame]]
+                [zmp_data.zmp_x[frame]],
+                [zmp_data.zmp_y[frame]]
             )
 
             return (
@@ -299,7 +299,7 @@ if __name__ == "__main__":
     from dynamics.lipm import LIPM
 
     planner = ZMPPlanner(
-        dt=0.01,
+        dt=0.005,
         step_duration=0.6,
         ds_ratio=0.2,
         swing_height=0.05
@@ -314,13 +314,12 @@ if __name__ == "__main__":
 
     T = zmp_data.T
 
-    # fake jerk inputs
-    u_x = np.sin(np.linspace(0, 6, T)) * 2
-    u_y = np.sin(np.linspace(0, 12, T)) * 0.5
+    zmp_x = zmp_data.zmp_x
+    zmp_y = zmp_data.zmp_y
 
-    lipm = LIPM(dt=0.01)
+    lipm = LIPM(dt=0.005)
 
-    com_traj = lipm.integrate(u_x, u_y)
+    com_traj = lipm.integrate(zmp_x, zmp_y)
 
     Visualizer.animate_top_view(zmp_data, com_traj)
 

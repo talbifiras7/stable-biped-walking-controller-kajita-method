@@ -242,7 +242,7 @@ class ZMPPlanner:
             self._fill_zmp(
                 zmp_x, zmp_y,
                 t0, t_ds_end, t1,
-                cur[swing],
+                prev_support_pos,
                 cur[support],
             )
 
@@ -531,7 +531,7 @@ if __name__ == "__main__":
 
     steps = planner.make_forward_steps(
         n=6,
-        step_length=0.1
+        step_length=0.25
     )
 
     data = planner.plan(steps, verbose=True)
