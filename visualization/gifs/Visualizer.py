@@ -2,110 +2,151 @@
 visualizer.py
 ==============
 
-Creates animated GIFs for:
-1. Top-view CoM vs ZMP trajectory
-2. ZMP reference vs CoM position (X axis)
-3. ZMP reference vs CoM position (Y axis)
+GIF visualization for:
+1. Top-view CoM / ZMP / Footsteps
+2. X-axis CoM vs ZMP
+3. Y-axis CoM vs ZMP
 
-Outputs
--------
-visualization/gifs/
-    ├── top_view.gif
-    ├── zmp_ref_vs_com_x.gif
-    └── zmp_ref_vs_com_y.gif
+Compatible with:
+- zmp.py
+- preview_controler.py
+- lipm.py
 """
 
 import os
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, PillowWriter
 
 
+# =========================================================
+# IMPORT FIX
+# =========================================================
+ROOT_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..")
+)
+
+sys.path.append(ROOT_DIR)
+
+from dynamics.zmp import ZMPPlanner
+from controler.preview_controler import PreviewController
+from dynamics.lipm import LIPM
+
+
+# =========================================================
+# VISUALIZER
+# =========================================================
 class Visualizer:
 
-    @staticmethod
-    def _make_dirs():
-        os.makedirs("visualization/gifs", exist_ok=True)
-
+    # =====================================================
+    # TOP VIEW
+    # =====================================================
     @staticmethod
     def animate_top_view(zmp_data, com_traj, fps=30):
 
-        Visualizer._make_dirs()
+        fig, ax = plt.subplots(figsize=(10, 7))
 
-        fig, ax = plt.subplots(figsize=(8, 6))
-
-        ax.set_title("Top View — CoM vs ZMP")
+        ax.set_title("Top View — CoM / ZMP / Footsteps")
         ax.set_xlabel("X [m]")
         ax.set_ylabel("Y [m]")
         ax.grid(True)
         ax.axis("equal")
 
-        # limits
-        margin = 0.05
+        margin = 0.08
 
         x_all = np.concatenate([
             zmp_data.zmp_x,
-            com_traj.pos_x
+            com_traj.pos_x,
+            zmp_data.foot_pos["left"][:, 0],
+            zmp_data.foot_pos["right"][:, 0]
         ])
 
         y_all = np.concatenate([
             zmp_data.zmp_y,
-            com_traj.pos_y
+            com_traj.pos_y,
+            zmp_data.foot_pos["left"][:, 1],
+            zmp_data.foot_pos["right"][:, 1]
         ])
 
         ax.set_xlim(x_all.min() - margin, x_all.max() + margin)
         ax.set_ylim(y_all.min() - margin, y_all.max() + margin)
 
-        # reference trajectories
+        # reference ZMP
         ax.plot(
             zmp_data.zmp_x,
             zmp_data.zmp_y,
-            "--",
-            alpha=0.5,
+            "k--",
+            linewidth=1.5,
             label="ZMP Reference"
         )
 
         # animated lines
-        com_line, = ax.plot([], [], linewidth=2, label="CoM")
-        zmp_line, = ax.plot([], [], linewidth=2, label="ZMP")
+        com_line, = ax.plot([], [], linewidth=2.5, label="CoM")
+        zmp_line, = ax.plot([], [], linewidth=2.0, label="Generated ZMP")
 
-        com_dot, = ax.plot([], [], "o")
-        zmp_dot, = ax.plot([], [], "o")
+        # animated points
+        com_dot, = ax.plot([], [], "o", markersize=8)
+        zmp_dot, = ax.plot([], [], "o", markersize=6)
+
+        # feet
+        left_foot, = ax.plot([], [], "s", markersize=10, label="Left Foot")
+        right_foot, = ax.plot([], [], "s", markersize=10, label="Right Foot")
 
         ax.legend()
 
         def init():
+
             com_line.set_data([], [])
             zmp_line.set_data([], [])
+
             return com_line, zmp_line
 
         def update(frame):
 
+            # CoM path
             com_line.set_data(
                 com_traj.pos_x[:frame],
                 com_traj.pos_y[:frame]
             )
 
+            # ZMP path
             zmp_line.set_data(
                 zmp_data.zmp_x[:frame],
                 zmp_data.zmp_y[:frame]
             )
 
+            # current CoM
             com_dot.set_data(
                 [com_traj.pos_x[frame]],
                 [com_traj.pos_y[frame]]
             )
 
+            # current ZMP
             zmp_dot.set_data(
                 [zmp_data.zmp_x[frame]],
                 [zmp_data.zmp_y[frame]]
+            )
+
+            # left foot
+            left_foot.set_data(
+                [zmp_data.foot_pos["left"][frame, 0]],
+                [zmp_data.foot_pos["left"][frame, 1]]
+            )
+
+            # right foot
+            right_foot.set_data(
+                [zmp_data.foot_pos["right"][frame, 0]],
+                [zmp_data.foot_pos["right"][frame, 1]]
             )
 
             return (
                 com_line,
                 zmp_line,
                 com_dot,
-                zmp_dot
+                zmp_dot,
+                left_foot,
+                right_foot
             )
 
         anim = FuncAnimation(
@@ -117,61 +158,44 @@ class Visualizer:
             blit=True
         )
 
-        path = "visualization/gifs/top_view.gif"
+        plt.show()
+        path=f'visualization/gifs/top_view.gif'
+        anim.save(path, writer=PillowWriter(fps=fps))
 
-        anim.save(
-            path,
-            writer=PillowWriter(fps=fps)
-        )
-
-        plt.close()
-
-        print(f"[GIF SAVED] {path}")
-
+    # =====================================================
+    # X AXIS
+    # =====================================================
     @staticmethod
     def animate_x_axis(zmp_data, com_traj, fps=30):
 
-        Visualizer._make_dirs()
-
         t = np.arange(com_traj.T) * com_traj.dt
 
-        fig, ax = plt.subplots(figsize=(10, 5))
+        fig, ax = plt.subplots(figsize=(12, 5))
 
-        ax.set_title("ZMP Reference vs CoM Position — X Axis")
+        ax.set_title("X Axis — CoM vs ZMP")
         ax.set_xlabel("Time [s]")
         ax.set_ylabel("X Position [m]")
         ax.grid(True)
 
-        ax.set_xlim(t[0], t[-1])
-
-        y_all = np.concatenate([
-            zmp_data.zmp_x,
-            com_traj.pos_x
-        ])
-
-        margin = 0.05
-
-        ax.set_ylim(
-            y_all.min() - margin,
-            y_all.max() + margin
-        )
-
         ax.plot(
             t,
             zmp_data.zmp_x,
-            "--",
-            label="ZMP Reference X"
+            "k--",
+            linewidth=2,
+            label="ZMP Reference"
         )
 
-        com_line, = ax.plot([], [], linewidth=2, label="CoM X")
-
-        com_dot, = ax.plot([], [], "o")
+        com_line, = ax.plot([], [], linewidth=2.5, label="CoM")
+        zmp_line, = ax.plot([], [], linewidth=2.0, label="Generated ZMP")
 
         ax.legend()
 
         def init():
+
             com_line.set_data([], [])
-            return com_line,
+            zmp_line.set_data([], [])
+
+            return com_line, zmp_line
 
         def update(frame):
 
@@ -180,12 +204,12 @@ class Visualizer:
                 com_traj.pos_x[:frame]
             )
 
-            com_dot.set_data(
-                [t[frame]],
-                [com_traj.pos_x[frame]]
+            zmp_line.set_data(
+                t[:frame],
+                zmp_data.zmp_x[:frame]
             )
 
-            return com_line, com_dot
+            return com_line, zmp_line
 
         anim = FuncAnimation(
             fig,
@@ -196,61 +220,44 @@ class Visualizer:
             blit=True
         )
 
-        path = "visualization/gifs/zmp_ref_vs_com_x.gif"
+        plt.show()
+        path=f'visualization/gifs/x_axis.gif'
+        anim.save(path, writer=PillowWriter(fps=fps))
 
-        anim.save(
-            path,
-            writer=PillowWriter(fps=fps)
-        )
-
-        plt.close()
-
-        print(f"[GIF SAVED] {path}")
-
+    # =====================================================
+    # Y AXIS
+    # =====================================================
     @staticmethod
     def animate_y_axis(zmp_data, com_traj, fps=30):
 
-        Visualizer._make_dirs()
-
         t = np.arange(com_traj.T) * com_traj.dt
 
-        fig, ax = plt.subplots(figsize=(10, 5))
+        fig, ax = plt.subplots(figsize=(12, 5))
 
-        ax.set_title("ZMP Reference vs CoM Position — Y Axis")
+        ax.set_title("Y Axis — CoM vs ZMP")
         ax.set_xlabel("Time [s]")
         ax.set_ylabel("Y Position [m]")
         ax.grid(True)
 
-        ax.set_xlim(t[0], t[-1])
-
-        y_all = np.concatenate([
-            zmp_data.zmp_y,
-            com_traj.pos_y
-        ])
-
-        margin = 0.05
-
-        ax.set_ylim(
-            y_all.min() - margin,
-            y_all.max() + margin
-        )
-
         ax.plot(
             t,
             zmp_data.zmp_y,
-            "--",
-            label="ZMP Reference Y"
+            "k--",
+            linewidth=2,
+            label="ZMP Reference"
         )
 
-        com_line, = ax.plot([], [], linewidth=2, label="CoM Y")
-
-        com_dot, = ax.plot([], [], "o")
+        com_line, = ax.plot([], [], linewidth=2.5, label="CoM")
+        zmp_line, = ax.plot([], [], linewidth=2.0, label="Generated ZMP")
 
         ax.legend()
 
         def init():
+
             com_line.set_data([], [])
-            return com_line,
+            zmp_line.set_data([], [])
+
+            return com_line, zmp_line
 
         def update(frame):
 
@@ -259,12 +266,12 @@ class Visualizer:
                 com_traj.pos_y[:frame]
             )
 
-            com_dot.set_data(
-                [t[frame]],
-                [com_traj.pos_y[frame]]
+            zmp_line.set_data(
+                t[:frame],
+                zmp_data.zmp_y[:frame]
             )
 
-            return com_line, com_dot
+            return com_line, zmp_line
 
         anim = FuncAnimation(
             fig,
@@ -275,54 +282,57 @@ class Visualizer:
             blit=True
         )
 
-        path = "visualization/gifs/zmp_ref_vs_com_y.gif"
-
-        anim.save(
-            path,
-            writer=PillowWriter(fps=fps)
-        )
-
-        plt.close()
-
-        print(f"[GIF SAVED] {path}")
+        plt.show()
+        path=f'visualization/gifs/y_axis.gif'
+        anim.save(path, writer=PillowWriter(fps=fps))
 
 
 # =========================================================
-# TEST
+# MAIN
 # =========================================================
 if __name__ == "__main__":
-    import os 
-    import sys
-    sys.path.append( os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-    
-    from dynamics.zmp import ZMPPlanner
-    from dynamics.lipm import LIPM
 
+    # -----------------------------------------------------
+    # ZMP PLANNER
+    # -----------------------------------------------------
     planner = ZMPPlanner(
-        dt=0.005,
-        step_duration=0.6,
+        dt=0.01,
+        step_duration=0.8,
         ds_ratio=0.2,
         swing_height=0.05
     )
 
-    steps = planner.make_forward_steps(
-        n=6,
-        step_length=0.1
+    footsteps = planner.make_forward_steps(
+        n=8,
+        step_length=0.15
     )
 
-    zmp_data = planner.plan(steps)
+    zmp_data = planner.plan(footsteps)
 
-    T = zmp_data.T
+    # -----------------------------------------------------
+    # PREVIEW CONTROLLER
+    # -----------------------------------------------------
+    controller = PreviewController(
+        dt=0.01,
+        N=200
+    )
 
-    zmp_x = zmp_data.zmp_x
-    zmp_y = zmp_data.zmp_y
+    u_x, u_y = controller.compute(zmp_data)
 
-    lipm = LIPM(dt=0.005)
+    # -----------------------------------------------------
+    # LIPM
+    # -----------------------------------------------------
+    lipm = LIPM(dt=0.01)
 
-    com_traj = lipm.integrate(zmp_x, zmp_y)
+    com_traj = lipm.integrate(u_x, u_y)
 
+    # -----------------------------------------------------
+    # VISUALIZATION
+    # -----------------------------------------------------
     Visualizer.animate_top_view(zmp_data, com_traj)
 
     Visualizer.animate_x_axis(zmp_data, com_traj)
 
     Visualizer.animate_y_axis(zmp_data, com_traj)
+
+    print("\nGIF generation complete.")
