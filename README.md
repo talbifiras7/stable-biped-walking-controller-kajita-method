@@ -1,214 +1,202 @@
-# Humanoid Walking Controller
+# Stable Biped Walking Controller — Kajita Method
 
-A modular humanoid robotics framework for:
+A research-oriented humanoid locomotion framework implementing the classical **Kajita walking pipeline** using:
 
-- Forward and inverse kinematics
-- Dynamic walking generation
-- ZMP trajectory planning
-- LIPM-based locomotion
-- Walking simulation and visualization
+- Zero Moment Point (ZMP) trajectory generation
+- Linear Inverted Pendulum Model (LIPM)
+- Preview Control
+- Forward & Inverse Kinematics
+- Walking visualization and simulation
 
-The project is designed as a research-oriented humanoid locomotion stack with clean subsystem separation and reusable robotics components.
+The project is designed to be modular, educational, and extensible for robotics, humanoid locomotion, and control research.
 
 ---
 
-# Project Architecture
+# Project Goals
+
+This repository focuses on building the foundations of a stable humanoid walking controller from scratch instead of relying on large robotics frameworks.
+
+Main objectives:
+
+- Understand humanoid locomotion mathematically
+- Implement classical walking control algorithms
+- Simulate dynamically stable walking
+- Build reusable robotics modules
+- Prepare the stack for future integration with:
+  - MPC
+  - Reinforcement Learning
+  - Whole-body control
+  - ROS / Gazebo
+  - Real humanoid hardware
+
+---
+
+# Walking Pipeline
 
 ```text
-Humanoid Walking Controller
+Footstep Planner
+        ↓
+ZMP Reference Generation
+        ↓
+Preview Controller
+        ↓
+LIPM Dynamics
+        ↓
+CoM Trajectory
+        ↓
+Inverse Kinematics
+        ↓
+Joint Motion
+        ↓
+Visualization / Simulation
+```
+
+---
+
+# Repository Structure
+
+```text
+stable-biped-walking-controller-kajita-method/
 │
-├── robot_config/     → Geometry and transformation utilities
-├── kinematics/       → Forward and inverse kinematics
-├── dynamics/         → ZMP + LIPM walking dynamics
-├── visualization/    → Plotting and rendering tools
-└── simulation/       → Walking simulation pipelines
+├── configs/           # Robot geometry and transformation utilities
+├── controler/         # Preview control implementation
+├── dynamics/          # ZMP and LIPM dynamics
+├── kinematics/        # FK and IK solvers
+├── simulation/        # Physics / robot simulation
+├── visualization/     # Plots and GIF generation
+│
+├── system_architecture.png
+└── README.md
 ```
 
 ---
 
 # Core Modules
 
-## Robot Configuration
+## Configs
 
-Defines:
+Centralized robot parameters and transformation utilities.
 
-- Robot geometry
+Includes:
 - Rotation matrices
-- Homogeneous transformations
-- Coordinate utilities
-
-📄 See:
-
-```text
-robot_config/README.md
-```
+- Homogeneous transforms
+- Robot geometry
+- Coordinate conventions
 
 ---
 
 ## Kinematics
 
 Implements:
+- Forward Kinematics (FK)
+- Inverse Kinematics (IK)
 
-- Forward kinematics
-- Inverse kinematics
-- Jacobian computation
-- Pose reconstruction
-
-📄 See:
-
-```text
-kinematics/README.md
-```
+Supports:
+- Foot pose computation
+- Joint reconstruction
+- Humanoid leg modeling
 
 ---
 
 ## Dynamics
 
 Implements:
-
-- Linear Inverted Pendulum Model (LIPM)
-- Zero Moment Point (ZMP)
-- Footstep planning
-- CoM trajectory generation
-
-📄 See:
-
-```text
-dynamics/README.md
-```
-
----
-
-# Walking Pipeline
-
-The humanoid walking pipeline follows:
-
-$$
-\text{Footsteps}
-\rightarrow
-\text{ZMP Planning}
-\rightarrow
-\text{LIPM Dynamics}
-\rightarrow
-\text{CoM Trajectory}
-\rightarrow
-\text{Inverse Kinematics}
-\rightarrow
-\text{Joint Commands}
-$$
-
----
-
-# Features
-
-- Modular humanoid robotics architecture
-- 12-DOF humanoid leg model
-- Numerical inverse kinematics
-- Jacobian-based solvers
 - ZMP trajectory generation
-- LIPM dynamic walking
-- Walking visualization tools
-- Research-oriented implementation
+- LIPM dynamics
+- CoM integration
+- Walking stability foundations
 
 ---
 
-# Dependencies
+## Preview Controller
 
-Install required packages:
-
-```bash
-pip install numpy matplotlib
-```
+Implements the Kajita preview control method to track ZMP references and stabilize walking trajectories.
 
 ---
 
-# Quick Example
+## Visualization
 
-## Forward Kinematics
-
-```python
-import numpy as np
-from kinematics.forward_kinematics import ForwardKinematics
-
-fk = ForwardKinematics("right")
-
-q = np.zeros(6)
-
-T = fk.compute(q)
-
-print(T)
-```
+Generates:
+- CoM vs ZMP plots
+- Walking trajectories
+- Animated GIFs
+- Top-view walking analysis
 
 ---
 
-## ZMP Walking Generation
+## Simulation
 
-```python
-from dynamics.zmp import ZMPPlanner
-
-planner = ZMPPlanner()
-
-steps = planner.make_forward_steps(
-    n=6,
-    step_length=0.1
-)
-
-zmp_data = planner.plan(steps)
-```
-
----
-
-# Visualization
-
-The framework can generate:
-
-- Foot trajectory plots
-- ZMP trajectories
-- CoM trajectories
-- IK convergence plots
-- Walking phase diagrams
-- Dynamic walking visualizations
-
-Generated plots are automatically saved inside:
-
-```text
-visualization/plots/
-```
+Contains the simulation environment and URDF model used to test locomotion behaviors.
 
 ---
 
 # Mathematical Foundations
 
-This project is based on classical humanoid robotics methods including:
+The project is based on the Linear Inverted Pendulum Model:
 
-- Homogeneous transformations
-- Numerical Jacobians
-- Newton–Raphson inverse kinematics
-- Zero Moment Point (ZMP)
-- Linear Inverted Pendulum Model (LIPM)
-- Jerk-controlled dynamic walking
+x_zmp = x - (z_c / g) * ẍ
 
----
-
-# Future Extensions
-
-Planned additions include:
-
-- Preview control
-- MPC walking controller
-- Whole-body control
-- ROS integration
-- Physics engine simulation
-- Reinforcement learning locomotion
+and the preview control formulation introduced by:
+- Kajita et al.
+- Honda humanoid walking research
+- Classical ZMP stabilization methods
 
 ---
 
-# License
+# Current Features
 
-MIT License
+- Modular robotics architecture
+- Humanoid walking pipeline
+- ZMP generation
+- LIPM trajectory integration
+- FK / IK implementation
+- GIF trajectory visualization
+- Research-oriented code organization
 
 ---
 
-# References
+# Planned Improvements
 
-- Kajita et al. — Introduction to Humanoid Robotics
+- Full MPC controller
+- ROS2 integration
+- Gazebo simulation
+- Terrain adaptation
+- Footstep optimization
+- Reinforcement learning integration
+- Real-time dashboard
+- Whole-body balancing
+
+---
+
+# Installation
+
+```bash
+git clone https://github.com/talbifiras7/stable-biped-walking-controller-kajita-method.git
+
+cd stable-biped-walking-controller-kajita-method
+
+pip install -r requirements.txt
+```
+
+---
+
+# Running the Project
+
+Example:
+
+```bash
+python visualization/gifs/Visualizer.py
+```
+
+---
+
+# Visualization Examples
+
+Generated outputs include:
+
+- Top-view walking GIFs
+- CoM trajectories
+- ZMP tracking curves
+- Walking phase visualization
+
+---

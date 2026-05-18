@@ -1,198 +1,66 @@
-# Robot Configuration Module
+# Configs Module
 
-This module defines the humanoid robot geometric parameters and provides reusable mathematical utilities for 3D transformations.
+This module centralizes all robot geometry parameters and mathematical transformation utilities used throughout the project.
 
-It serves as the shared mathematical foundation for the entire robotics framework and is used by:
-
-- Forward Kinematics
-- Inverse Kinematics
+It acts as the shared foundation for:
+- Kinematics
 - Dynamics
-- Walking Pattern Generation
+- Preview control
+- Simulation
 - Visualization
-- Simulation Pipelines
 
 ---
 
 # File Structure
 
 ```text
-robot_config.py
+configs/
+├── robot_config.py
+└── README.md
 ```
 
 ---
 
-# Features
+# Responsibilities
 
-- Centralized robot geometry configuration
-- Standard 3D rotation matrices
-- Homogeneous transformation matrix generation
-- Reusable robotics mathematics utilities
-- Consistent coordinate transformation tools
+The module provides:
 
----
-
-# Coordinate Convention
-
-The project uses a right-handed coordinate system:
-
-- **X-axis** → Forward
-- **Y-axis** → Lateral
-- **Z-axis** → Upward
+- Robot geometric dimensions
+- Link lengths
+- Coordinate system conventions
+- Rotation matrices
+- Homogeneous transformation matrices
+- Shared robotics math utilities
 
 ---
 
-# Robot Geometry
+# Coordinate System
 
-The robot dimensions are stored using a Python dataclass.
+The project uses a right-handed coordinate frame:
 
-```python
-from dataclasses import dataclass
-
-@dataclass
-class RobotGeometry:
-    pelvis_height: float = 0.85
-    thigh_length:  float = 0.40
-    shank_length:  float = 0.40
-    foot_height:   float = 0.05
-    hip_width:     float = 0.18
-```
-
-## Geometry Parameters
-
-| Parameter       | Description                   | Value    |
-|----------------|-------------------------------|----------|
-| `pelvis_height` | Pelvis height from ground     | `0.85 m` |
-| `thigh_length`  | Upper leg length              | `0.40 m` |
-| `shank_length`  | Lower leg length              | `0.40 m` |
-| `foot_height`   | Foot thickness                | `0.05 m` |
-| `hip_width`     | Distance between hip joints   | `0.18 m` |
-
-A global geometry instance is created for use throughout the project:
-
-```python
-GEO = RobotGeometry()
+```text
+X → Forward
+Y → Lateral
+Z → Upward
 ```
 
 ---
 
-# Rotation Matrix Utilities
+# Main Utilities
 
-The module provides standard 3D rotation matrices.
-
----
-
-## Rotation Around X-axis
-
-```python
-Rx(a)
-```
-
-Returns the matrix:
-
-$$
-R_x(a)=
-\begin{bmatrix}
-1 & 0 & 0 \\
-0 & \cos(a) & -\sin(a) \\
-0 & \sin(a) & \cos(a)
-\end{bmatrix}
-$$
+Typical utilities include:
+- Rotation around X-axis
+- Rotation around Y-axis
+- Rotation around Z-axis
+- Translation transforms
+- Frame composition
 
 ---
 
-## Rotation Around Y-axis
+# Why This Module Matters
 
-```python
-Ry(a)
-```
-
-Returns the matrix:
-
-$$
-R_y(a)=
-\begin{bmatrix}
-\cos(a) & 0 & \sin(a) \\
-0 & 1 & 0 \\
--\sin(a) & 0 & \cos(a)
-\end{bmatrix}
-$$
-
----
-
-## Rotation Around Z-axis
-
-```python
-Rz(a)
-```
-
-Returns the matrix:
-
-$$
-R_z(a)=
-\begin{bmatrix}
-\cos(a) & -\sin(a) & 0 \\
-\sin(a) & \cos(a) & 0 \\
-0 & 0 & 1
-\end{bmatrix}
-$$
-
----
-
-# Homogeneous Transformation Matrix
-
-## Function
-
-```python
-homogeneous(R, t)
-```
-
-Builds a 4×4 homogeneous transformation matrix from:
-
-- A rotation matrix `R`
-- A translation vector `t`
-
-## Mathematical Form
-
-$$
-T =
-\begin{bmatrix}
-R & t \\
-0 & 1
-\end{bmatrix}
-$$
-
-This representation is widely used in:
-
-- Coordinate frame transformations
-- Robot pose estimation
-- Kinematic chains
-- Motion simulation
-
----
-
-# Dependencies
-
-Install the required dependency:
-
-```bash
-pip install numpy
-```
-
----
-
-# Example Usage
-
-```python
-import numpy as np
-from robot_config import GEO, Rz, homogeneous
-
-R = Rz(np.pi / 4)
-
-translation = np.array([0.1, 0.2, 0.3])
-
-T = homogeneous(R, translation)
-
-print(T)
-```
-
----
+Keeping geometry and transformations centralized ensures:
+- Consistency across the project
+- Easier debugging
+- Cleaner robotics architecture
+- Better scalability

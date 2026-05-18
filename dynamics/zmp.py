@@ -23,7 +23,6 @@ ZMP reference construction  (Kajita 2003)
     Swing foot follows a cubic Bézier arc to its landing target.
 
 """
-from turtle import left, lt, right
 
 import numpy as np
 from dataclasses import dataclass, field
